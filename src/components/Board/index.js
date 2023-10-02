@@ -1,19 +1,26 @@
+import { MENU_ITEMS } from "@/constants"
+import { changeActiveActionItem } from "@/slice/MenuSlice"
 import { useEffect, useLayoutEffect, useRef } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 
 const Board = () =>{
     const canvasRef = useRef(null)
     let shouldDraw = false
 
-    const {color, size} = useSelector((state) => { return {color : state.toolboxReducer.activeColor, size: state.toolboxReducer.brushSize}}) // get the values of color and size from toolboxReducer
+    const dispatch = useDispatch()
+    const toolboxReducer = useSelector((state) => state.toolboxReducer) // get the values of color and size from toolboxReducer
+    const menuReducer = useSelector((state) => state.menuReducer) // get the values of which action is clicked from menuReducer
 
-    console.log("colo",color, size)
+    const { activeColor: color, brushSize: size} = toolboxReducer;
+    const { activeActionItem } = menuReducer;
+
+    console.log("colo",color, size,activeActionItem)
 
     useEffect(() =>{
         if(!canvasRef.current) return
 
         let canvas = canvasRef.current;             
-        let context = canvas.getContext('2d');      // to get the context of canvas
+        let context = canvas.getContext('2d');                // to get the context of canvas
 
         const updateColorSize = (color,size) =>{              // update the color and size in context so that when we draw it will remember 
             context.strokeStyle = color;
@@ -24,12 +31,23 @@ const Board = () =>{
 
     },[color, size])
 
+    useEffect(()=>{
+        if(activeActionItem === MENU_ITEMS.DOWNLOAD){
+            let canvas = canvasRef.current;
+            let anchorElement = document.createElement('a');
+            anchorElement.href = canvas.toDataURL()
+            anchorElement.download = 'sketch.jpg'
+            anchorElement.click()
+            dispatch(changeActiveActionItem(null))
+        }
+    },[activeActionItem])
+
     
-    // Before component paint
-    useLayoutEffect(() =>{                          // this will run even before useEffect paint
+    // Before component paint => this will run even before useEffect paint
+    useLayoutEffect(() =>{
         if(!canvasRef.current) return
         let canvas = canvasRef.current;             
-        let context = canvas.getContext('2d');      // to get the context of canvas
+        let context = canvas.getContext('2d');             
 
         //when mounting update width and height of the canvas ref.
         canvas.width =  window.innerWidth

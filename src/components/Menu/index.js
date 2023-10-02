@@ -4,7 +4,7 @@ import styles  from './index.module.css'
 import classNames from 'classnames'
 import { COLORS, MENU_ITEMS } from '@/constants'
 import { useDispatch, useSelector } from 'react-redux'
-import { changeActiveMenuItem } from '@/slice/MenuSlice'
+import { changeActiveActionItem, changeActiveMenuItem } from '@/slice/MenuSlice'
 import { changeActiveColor } from '@/slice/ToolboxSlice'
 
 const Menu = () =>{
@@ -27,17 +27,17 @@ const Menu = () =>{
             }
 
             case MENU_ITEMS.UNDO:{
-                console.log("undo")
+                dispatch(changeActiveActionItem(MENU_ITEMS.UNDO))
                 break;
             }
                     
             case MENU_ITEMS.REDO:{
-                console.log("redo")
+                dispatch(changeActiveActionItem(MENU_ITEMS.REDO))
                 break;
             }
 
             case MENU_ITEMS.DOWNLOAD:{
-                console.log("download")
+                dispatch(changeActiveActionItem(MENU_ITEMS.DOWNLOAD))
                 break;
             }
         }
