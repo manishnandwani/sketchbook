@@ -5,7 +5,7 @@ import styles from './index.module.css'
 
 const Toolbox = () =>{
 
-    const {activeColor, activeMenuItem, size} = useSelector((state) => {return {activeColor: state.toolboxReducer.activeColor, activeMenuItem: state.menuReducer.activeMenuItem, size: state.toolboxReducer.brushSize}})
+    const {activeMenuItem, size} = useSelector((state) => {return {activeMenuItem: state.menuReducer.activeMenuItem, size: state.toolboxReducer.brushSize}})
 
     const dispatch = useDispatch()
 
