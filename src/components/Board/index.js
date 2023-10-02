@@ -5,7 +5,10 @@ import { useDispatch, useSelector } from "react-redux"
 
 const Board = () =>{
     const canvasRef = useRef(null)
-    let shouldDraw = false
+    
+    let shouldDraw = false;
+    const historyPointer = useRef(0);
+    const drawHistory = useRef([]);
 
     const dispatch = useDispatch()
     const toolboxReducer = useSelector((state) => state.toolboxReducer) // get the values of color and size from toolboxReducer
@@ -32,14 +35,25 @@ const Board = () =>{
     },[color, size])
 
     useEffect(()=>{
+        if(!canvasRef.current) return
+
+        let canvas = canvasRef.current;
+        let context = canvas.getContext('2d');
+
         if(activeActionItem === MENU_ITEMS.DOWNLOAD){
-            let canvas = canvasRef.current;
             let anchorElement = document.createElement('a');
             anchorElement.href = canvas.toDataURL()
             anchorElement.download = 'sketch.jpg'
             anchorElement.click()
-            dispatch(changeActiveActionItem(null))
+        }else if(activeActionItem !== null){
+            if(activeActionItem === MENU_ITEMS.UNDO && historyPointer.current > 0) 
+                historyPointer.current -= 1;
+            if(activeActionItem === MENU_ITEMS.REDO && historyPointer.current < drawHistory.current.length - 1)
+                historyPointer.current += 1;
+            let imageData = drawHistory.current[historyPointer.current]
+            context.putImageData(imageData, 0, 0);
         }
+        dispatch(changeActiveActionItem(null))
     },[activeActionItem])
 
     
@@ -77,6 +91,9 @@ const Board = () =>{
 
         const handleMouseUp = (e) =>{
             shouldDraw = false
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+            drawHistory.current.push(imageData)
+            historyPointer.current = drawHistory.current.length - 1 
         }
 
         // Add event listener =>  // Event listeners will always listen to the refs/ ids
