@@ -19,7 +19,6 @@ const ToolboxSlice = createSlice({
     }
 })
 
-
 export const { changeActiveColor, changeBrushSize } = ToolboxSlice.actions;
 
 export default ToolboxSlice.reducer;

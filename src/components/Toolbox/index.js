@@ -1,5 +1,5 @@
 import { COLORS, MENU_ITEMS } from '@/constants'
-import { changeActiveColor, changeBrushSize } from '@/pages/slice/ToolboxSlice'
+import { changeActiveColor, changeBrushSize } from '@/slice/ToolboxSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import styles from './index.module.css'
 
@@ -37,8 +37,6 @@ const Toolbox = () =>{
                 <p className={styles.text}>Brush size</p>
                 <div className={styles.itemContainer}>
                     <input type="range" min='1' max='10' step='1' value={size} onChange={handleChangeBrushSize} />
-                    {size}
-                    {activeColor}
                 </div>
             </div>
         </div>

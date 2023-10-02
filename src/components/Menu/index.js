@@ -2,11 +2,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faEraser, faRotateLeft, faRotateRight, faFileDownload } from '@fortawesome/free-solid-svg-icons'
 import styles  from './index.module.css'
 import classNames from 'classnames'
-import { useState } from 'react'
 import { COLORS, MENU_ITEMS } from '@/constants'
 import { useDispatch, useSelector } from 'react-redux'
-import { changeActiveMenuItem } from '@/pages/slice/MenuSlice'
-import { changeActiveColor } from '@/pages/slice/ToolboxSlice'
+import { changeActiveMenuItem } from '@/slice/MenuSlice'
+import { changeActiveColor } from '@/slice/ToolboxSlice'
 
 const Menu = () =>{
     const activeMenuItem = useSelector((state) => state.menuReducer.activeMenuItem)
