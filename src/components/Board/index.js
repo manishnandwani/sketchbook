@@ -2,6 +2,7 @@ import { MENU_ITEMS } from "@/constants"
 import { changeActiveActionItem } from "@/slice/MenuSlice"
 import { useEffect, useLayoutEffect, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
+import io from 'Socket.IO-client'
 
 const Board = () =>{
     const canvasRef = useRef(null)
@@ -18,6 +19,19 @@ const Board = () =>{
     const { activeActionItem } = menuReducer;
 
     console.log("colo",color, size,activeActionItem)
+
+    const socketInitializer = async () => {
+        await fetch('/api/socket')
+        let socket = io()
+    
+        socket.on('connect', () => {
+          console.log('client connected')
+        })
+    }
+
+    useEffect(() => {
+        socketInitializer()
+    }, [])
 
     useEffect(() =>{
         if(!canvasRef.current) return
