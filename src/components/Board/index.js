@@ -18,20 +18,18 @@ const Board = () =>{
     const { activeColor: color, brushSize: size} = toolboxReducer;
     const { activeActionItem } = menuReducer;
 
-    console.log("colo",color, size,activeActionItem)
+    let socket = io()
 
+    // initialize the socket
     const socketInitializer = async () => {
-        await fetch('/api/socket')
-        let socket = io()
+        await fetch('/api/socket')              // call socket api to create connection
     
-        socket.on('connect', () => {
+        socket.on('connect', () => {            // client connection
           console.log('client connected')
         })
     }
 
-    useEffect(() => {
-        socketInitializer()
-    }, [])
+    useEffect(() => {socketInitializer()}, [])
 
     useEffect(() =>{
         if(!canvasRef.current) return
@@ -45,6 +43,16 @@ const Board = () =>{
         }
 
         updateColorSize(color,size)
+
+        const handleChangeTools = (data)=>{
+            updateColorSize(data.color,data.size)
+        }
+
+        socket.on('changeTool',handleChangeTools)
+
+        return () =>{
+            socket.off('changeTool',handleChangeTools)
+        }
 
     },[color, size])
 
@@ -83,24 +91,26 @@ const Board = () =>{
 
         // context begin and move methods
         const beginPath = (x, y) =>{
-            context.beginPath()
-            context.moveTo(x, y)
+            context.beginPath()                             // It will start the Path
+            context.moveTo(x, y)                            // It will move to x,y
         }
 
         const drawLine = (x, y) =>{
-            context.lineTo(x, y)
-            context.stroke()  
+            context.lineTo(x, y)                            // Follow the line to x,y
+            context.stroke()                                // It will build the stroke of line
         }
 
         // Event listener methods
         const handleMouseDown = (e) =>{
             shouldDraw = true
-            beginPath(e.clientX, e.clientY)
+            beginPath(e.clientX, e.clientY)                             // begin path with x and y coordinates
+            socket.emit('beginPath',{x : e.clientX, y : e.clientY})     // step 1 emit beginPath with x,y
         }
 
         const handleMouseMove = (e) =>{
             if(!shouldDraw) return
             drawLine(e.clientX, e.clientY)
+            socket.emit('drawLine',{x : e.clientX, y : e.clientY})
         }
 
         const handleMouseUp = (e) =>{
@@ -115,11 +125,27 @@ const Board = () =>{
         canvas.addEventListener('mousemove',handleMouseMove)
         canvas.addEventListener('mouseup',handleMouseUp)
 
+        // web sockets handler methods
+        const handleBeginPath = (path) =>{
+            beginPath(path.x, path.y)
+        }
+        
+        const handleDrawLine = (path) =>{
+            drawLine(path.x, path.y)
+        }
+
+        // Web Socket on methods when broadcast emits from serve we will get here
+        socket.on('beginPath',handleBeginPath)                  // step 4 get beginPath with x,y and draw again
+        socket.on('drawLine',handleDrawLine)
+
         // remove event listener
         return () =>{
             canvas.removeEventListener('mousedown',handleMouseDown)
             canvas.removeEventListener('mousemove',handleMouseMove)
             canvas.removeEventListener('mouseup',handleMouseUp)
+
+            socket.off('beginPath',handleBeginPath)             // step 5 off the socket when the component is destroyed
+            socket.off('drawLine',handleDrawLine)
         }
     },[])
 

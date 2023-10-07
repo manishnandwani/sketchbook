@@ -2,19 +2,27 @@ import { COLORS, MENU_ITEMS } from '@/constants'
 import { changeActiveColor, changeBrushSize } from '@/slice/ToolboxSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import styles from './index.module.css'
+import io from 'Socket.IO-client'
 
 const Toolbox = () =>{
 
-    const {activeMenuItem, size} = useSelector((state) => {return {activeMenuItem: state.menuReducer.activeMenuItem, size: state.toolboxReducer.brushSize}})
+    const toolboxReducer = useSelector((state) => state.toolboxReducer) // get the values of color and size from toolboxReducer
+    const menuReducer = useSelector((state) => state.menuReducer) // get the values of which action is clicked from menuReducer
+    const { activeColor: color, brushSize: size} = toolboxReducer;
+    const { activeMenuItem } = menuReducer;
 
     const dispatch = useDispatch()
 
+    let socket = io()
+
     const handleSelectColor = (value) =>{
         dispatch(changeActiveColor(value))
+        socket.emit('changeTool',{color : value, size})
     }
 
     const handleChangeBrushSize = (e) =>{
         dispatch(changeBrushSize(e.target.value))
+        socket.emit('changeTool',{color, size: e.target.value})
     }
 
     return (
