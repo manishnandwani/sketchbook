@@ -1,4 +1,4 @@
-import io from 'Socket.IO-client'
+import io from 'socket.io-client'
 
 const URL = process.env.NODE_ENV === 'production' ? 'https://sketchbook-server.vercel.app' : 'http://localhost:5000'
 
