@@ -1,8 +1,8 @@
 import { MENU_ITEMS } from "@/constants"
 import { changeActiveActionItem } from "@/slice/MenuSlice"
+import { socket } from "@/socket"
 import { useEffect, useLayoutEffect, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import io from 'Socket.IO-client'
 
 const Board = () =>{
     const canvasRef = useRef(null)
@@ -17,19 +17,6 @@ const Board = () =>{
 
     const { activeColor: color, brushSize: size} = toolboxReducer;
     const { activeActionItem } = menuReducer;
-
-    let socket = io()
-
-    // initialize the socket
-    const socketInitializer = async () => {
-        await fetch('/api/socket')              // call socket api to create connection
-    
-        socket.on('connect', () => {            // client connection
-          console.log('client connected')
-        })
-    }
-
-    useEffect(() => {socketInitializer()}, [])
 
     useEffect(() =>{
         if(!canvasRef.current) return
@@ -72,8 +59,10 @@ const Board = () =>{
                 historyPointer.current -= 1;
             if(activeActionItem === MENU_ITEMS.REDO && historyPointer.current < drawHistory.current.length - 1)
                 historyPointer.current += 1;
+            
             let imageData = drawHistory.current[historyPointer.current]
-            context.putImageData(imageData, 0, 0);
+            if(imageData)
+                context.putImageData(imageData, 0, 0);
         }
         dispatch(changeActiveActionItem(null))
     },[activeActionItem])
@@ -113,12 +102,16 @@ const Board = () =>{
             socket.emit('drawLine',{x : e.clientX, y : e.clientY})
         }
 
-        const handleMouseUp = (e) =>{
+        const handleMouseUp = (e) =>{                                   // to stop the draw => shouldDraw = false
             shouldDraw = false
-            let imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-            drawHistory.current.push(imageData)
-            historyPointer.current = drawHistory.current.length - 1 
+            let imageData = context.getImageData(0, 0, canvas.width, canvas.height) //get the complete canvas image
+            drawHistory.current.push(imageData)                                     // push in drawHistory
+            historyPointer.current = drawHistory.current.length - 1                 // historyPointer will b on the last element
         }
+
+        socket.on('connect', () => {            // client connection
+            console.log('client connected')
+        })
 
         // Add event listener =>  // Event listeners will always listen to the refs/ ids
         canvas.addEventListener('mousedown',handleMouseDown)

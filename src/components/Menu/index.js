@@ -6,9 +6,13 @@ import { COLORS, MENU_ITEMS } from '@/constants'
 import { useDispatch, useSelector } from 'react-redux'
 import { changeActiveActionItem, changeActiveMenuItem } from '@/slice/MenuSlice'
 import { changeActiveColor } from '@/slice/ToolboxSlice'
+import { socket } from '@/socket'
 
 const Menu = () =>{
-    const activeMenuItem = useSelector((state) => state.menuReducer.activeMenuItem)
+    const toolboxReducer = useSelector((state) => state.toolboxReducer) // get the values of color and size from toolboxReducer
+    const menuReducer = useSelector((state) => state.menuReducer) // get the values of which action is clicked from menuReducer
+    const { activeColor: color, brushSize: size} = toolboxReducer;
+    const { activeMenuItem } = menuReducer;
 
     const dispatch = useDispatch()
 
@@ -17,12 +21,14 @@ const Menu = () =>{
             case MENU_ITEMS.PENCIL:{
                 dispatch(changeActiveMenuItem(item))
                 dispatch(changeActiveColor(COLORS.BLACK))
+                socket.emit('changeTool',{color : COLORS.BLACK, size})
                 break;
             }
 
             case MENU_ITEMS.ERASER:{
                 dispatch(changeActiveMenuItem(item))
                 dispatch(changeActiveColor(COLORS.WHITE))
+                socket.emit('changeTool',{color : COLORS.WHITE, size})
                 break;
             }
 

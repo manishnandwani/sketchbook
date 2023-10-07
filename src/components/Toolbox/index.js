@@ -1,8 +1,8 @@
 import { COLORS, MENU_ITEMS } from '@/constants'
 import { changeActiveColor, changeBrushSize } from '@/slice/ToolboxSlice'
+import { socket } from '@/socket'
 import { useDispatch, useSelector } from 'react-redux'
 import styles from './index.module.css'
-import io from 'Socket.IO-client'
 
 const Toolbox = () =>{
 
@@ -12,8 +12,6 @@ const Toolbox = () =>{
     const { activeMenuItem } = menuReducer;
 
     const dispatch = useDispatch()
-
-    let socket = io()
 
     const handleSelectColor = (value) =>{
         dispatch(changeActiveColor(value))
